@@ -1,4 +1,15 @@
-from settings import ANALYTICS_CONNECTION
-from databases import Database
+from config import DATABASE_URL
 
-db_client = Database(ANALYTICS_CONNECTION, min_size=2, max_size=20)
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy import create_engine, Column, Integer, String, select
+# from sqlalchemy.orm import sessionmaker, Session, Mapped, mapped_column
+
+engine = create_async_engine(DATABASE_URL, echo=True)
+SessionLocal = async_sessionmaker(engine)
+
+
+class Base(DeclarativeBase):
+    pass

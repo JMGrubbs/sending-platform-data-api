@@ -1,15 +1,14 @@
 from redis.asyncio import Redis, ConnectionPool
 from contextlib import asynccontextmanager
-from settings import PUBLIC_CACHE
+from config import REDIS_CONECTION_URL
 
-pool: ConnectionPool = None
+REDIS_POOL: ConnectionPool = None
 
 
-async def create_pool() -> None:
+async def create_pool(pool: ConnectionPool = REDIS_POOL) -> None:
     try:
-        global pool
         pool = ConnectionPool.from_url(
-            f"redis://{PUBLIC_CACHE['RedisHost']}:{PUBLIC_CACHE['RedisPort']}/0",
+            REDIS_CONECTION_URL,
             decode_responses=True,
             max_connections=1000,
         )
@@ -20,7 +19,7 @@ async def create_pool() -> None:
     return None
 
 
-async def disconnect_pool() -> None:
+async def disconnect_pool(pool: ConnectionPool = REDIS_POOL) -> None:
     try:
         print(f"Before disconnect: available={pool._available_connections}, in-use={pool._in_use_connections}")
         await pool.disconnect(inuse_connections=True)
@@ -36,8 +35,7 @@ async def disconnect_pool() -> None:
 
 
 @asynccontextmanager
-async def redis_connection():
-    global pool
+async def redis_connection(pool: ConnectionPool = REDIS_POOL):
     client = Redis(connection_pool=pool)
     try:
         yield client
